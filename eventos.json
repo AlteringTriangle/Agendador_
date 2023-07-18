@@ -1,0 +1,17 @@
+{
+    "eventos": [
+        "Prova",
+        "Semin\u00e1rio",
+        "Projeto"
+    ],
+    "extra": [
+        "Matem\u00e1tica",
+        "F\u00edsica",
+        "Quarteto fantasma"
+    ],
+    "agenda": [
+        "\t\t02/09/2023",
+        "\t\t18/07/2023",
+        "\t\t25/07/2023"
+    ]
+}
