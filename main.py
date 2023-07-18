@@ -12,6 +12,14 @@ from assets.addTask import AddTaskLayout
 
 import json
 
+'''
+tasks
+	-> O Manager cuidará de todos os processos de escrever e salvar no arquivo json principal. Para
+	que as outras seções possam acessar e manipular os dados, devem copiar os dados do Manager, e para
+	alterar os dados devem chamar uma função do Manager do qual trate de adicionar, tirar ou alterar os dados.
+	Caso algum dado seja alterado, adicionado, ou eliminado, todas as seções que dependem desses dados devem ser notificadas
+	pelo Manager para que possam novamente copiar os dados novos.
+'''
 
 Builder.load_string("""
 <Manager>:
@@ -51,103 +59,127 @@ class Manager(ScreenManager):
 		self.notify()
 
 	def notify(self):
+		'''
+		Manager muda a propriedade change in data da página principal e da página de adicionar
+		tarefas, pois estas dependem do conteúdo do json.
+		Quando a propriedade muda, a classe detentora desta propriedade executa uma função para
+		atualizar seus parâmetros
+		'''
 		self.ids.mps.change_in_data = True
-		self.ids.mps.change_in_data = True
+		self.ids.ats.change_in_data = True
 
 
 class MainPageScreen(Screen):
+	change_in_data = BooleanProperty(False)
 	def __init__(self, **kwargs):
 		super(MainPageScreen,self).__init__(**kwargs)
+		# self.App auxiliará a acessar o root/Manager em outras funções
 		self.App = App.get_running_app()
+		# change in data é colocado como true para que a classe saiba que precisa atualizar os dados
+		self.change_in_data = True
 		self.newc = None
-		self.data = ...
-		
+		self.data = ...	
 
 	def on_enter(self, *args):
-		Clock.schedule_once(self.letmesee,0)
+		# no exato momento de enter, MainPageScreen não possui widgets childrens, portanto
+		# configure_screen é agendado para o ciclo
+		Clock.schedule_once(self.configure_screen,0)
 
-	def letmesee(self, *args, **kwargs):
+	def configure_screen(self, *args, **kwargs):
+		# dá aos botões suas funcionalidades
 		self.children[0].ids.b1.bind(on_release=self.changeCurrent('addtaskscreen'))
-		self.load_agenda()
+
+	def on_change_in_data(self, *args):
+		# sempre que change in data for modificado esta função será chamada
+		if self.change_in_data == True:
+			# se change in data for True, significa que os dados precisam ser requisitados do manager
+			# assim que os dados são atualizados, change in data é alterado para false, chamando novamente esta
+			# função entretanto dessa vez sem passar for nenhuma condição
+			# no caso de mainpagescreen, se os dados mudam, a agenda deve ser carregada novamente
+			self.data = self.App.root.agenda
+			self.change_in_data = False
+			self.load_agenda()
 
 	def changeCurrent(self,newc, *args):
+		# modifica newc para que change saiba para qual tela mudar
 		self.newc = newc
 		return self.change
 
 	def load_agenda(self):
-		# atualiza os dados da agenda
-		self.data = App.get_running_app().root.agenda
-		# define a variavel do grid de dados
+		# define uma variavel para identificar o grid de dados
 		datagrid = self.children[0].ids.data
-
-		# verifica se há mais dados do que a demonstração anterior
-		numeros_de_linhas = len(datagrid.children)
-		numero_de_dados = len(self.data)
-		if numero_de_dados > numeros_de_linhas:
-			if len(datagrid.children) != 0:
-				datagrid.clear_widgets()
-			for c in self.data:
-				c = c.replace("\t"," ")
-				datagrid.add_widget(Label(text=f'{c}'))
-			datagrid.resize = 1
-
+		# verifica se há dados já escritos no grid de dados, e limpa os dados se necessário
+		if len(datagrid.children) != 0:
+			datagrid.clear_widgets()
+		for c in self.data:
+			c = c.replace("\t"," ")
+			datagrid.add_widget(Label(text=f'{c}'))
+		datagrid.resize = 1
 
 	def change(self, *args):
+		# chama o Manager para que este troque de tela
 		self.App.root.current = self.newc
 
 
 class AddTaskScreen(Screen):
+	change_in_data = BooleanProperty(False)
 	def __init__(self, **kwargs):
 		super(AddTaskScreen,self).__init__(**kwargs)
 		self.App = App.get_running_app()
 		self.eventos = ...
 		self.extras = ...
 		self.data = ...
+		self.change_in_data = True
 
 	def on_enter(self, *args):
 		Clock.schedule_once(self.bindings,0)
 
 	def bindings(self, *args, **kwargs):
-		# da bind nos botoes de voltar e adicionar tarefas
-		# também atualiza as colecões de eventos e extras
+		# adiciona as funcionalidades dos botões
 		ids_selector = self.children[0].ids
 		ids_selector.back.bind(on_release=self.back)
 		ids_selector.commit.bind(on_release=self.commit)
-		self.open()
-
-		ids_selector.eb.collection = self.eventos
-		ids_selector.ab.collection = self.extras
+		
 		
 	def back(self, *args):
-		# volta para a tela principal
+		'''volta para a tela principal'''
 		self.App.root.current = 'mainpagescreen'
 
-	def open(self):
-		# Carrega as informações do json que foram salvas em Manager
-		self.eventos = self.App.root.eventos
-		self.extras = self.App.root.extra
-		self.data = self.App.root.agenda
+	def on_change_in_data(self, *args):
+		if change_in_data == True:
+			'''
+			Carrega as informações do json que foram salvas em Manager
+			atualiza as coleções de eventos e extras
+			muda change in data para false
+			'''
+
+			self.eventos = self.App.root.eventos
+			self.extras = self.App.root.extra
+			self.data = self.App.root.agenda
+			ids_selector = self.children[0].ids
+			ids_selector.eb.collection = self.eventos
+			ids_selector.ab.collection = self.extras
+			
+			self.change_in_data = False
 
 	def commit(self, *args):
-		# guarda o texto do dia/mes/ano do evento
+		'''
+		Armazena em variáveis as opções selecionadas e as formata
+		A string formatada é então usada para criar um dicionario que é enviado para
+		o Manager poder alterar as informações no json, atualizar seus dados e notificar
+		classes dependentes destas informações que devem atualizar os seus dados novamente
+		'''
 		ids_selector = self.children[0].ids
 		dia = ids_selector.dia.text
 		mes = ids_selector.mes.text
 		ano = ids_selector.ano.text
-		# guarda o evento e o extra
 		evento = ids_selector.eb.text
 		extra = ids_selector.ab.text
-		# formata as informações
 		string = f'{evento}\t{extra}\t{dia}/{mes}/{ano}'
-		# adiciona a informações a data
+
 		self.data.append(string)
-		# salva as alterações no arquivo
 		new = {"eventos":self.eventos,"extra":self.extras,"agenda":self.data}
-
 		self.App.root.write(new)
-		self.open()
-
-		print(string)
 
 class MyApp(App):
 	def build(self):
