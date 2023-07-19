@@ -56,6 +56,8 @@ class Manager(ScreenManager):
 		with open("eventos.json", "w") as f:
 			f.write(json.dumps(string, indent=4))
 
+		self.open()
+
 		self.notify()
 
 	def notify(self):
@@ -76,7 +78,6 @@ class MainPageScreen(Screen):
 		# self.App auxiliará a acessar o root/Manager em outras funções
 		self.App = App.get_running_app()
 		# change in data é colocado como true para que a classe saiba que precisa atualizar os dados
-		self.change_in_data = True
 		self.newc = None
 		self.data = ...	
 
@@ -88,14 +89,18 @@ class MainPageScreen(Screen):
 	def configure_screen(self, *args, **kwargs):
 		# dá aos botões suas funcionalidades
 		self.children[0].ids.b1.bind(on_release=self.changeCurrent('addtaskscreen'))
+		# requisita uma atualização nos dados
+		self.change_in_data = True		
 
 	def on_change_in_data(self, *args):
 		# sempre que change in data for modificado esta função será chamada
 		if self.change_in_data == True:
-			# se change in data for True, significa que os dados precisam ser requisitados do manager
-			# assim que os dados são atualizados, change in data é alterado para false, chamando novamente esta
-			# função entretanto dessa vez sem passar for nenhuma condição
-			# no caso de mainpagescreen, se os dados mudam, a agenda deve ser carregada novamente
+			'''
+			se change in data for True, significa que os dados precisam ser requisitados do manager
+			assim que os dados são atualizados, change in data é alterado para false, chamando novamente esta
+			função entretanto dessa vez sem passar for nenhuma condição
+			no caso de mainpagescreen, se os dados mudam, a agenda deve ser carregada novamente
+			'''
 			self.data = self.App.root.agenda
 			self.change_in_data = False
 			self.load_agenda()
@@ -129,7 +134,6 @@ class AddTaskScreen(Screen):
 		self.eventos = ...
 		self.extras = ...
 		self.data = ...
-		self.change_in_data = True
 
 	def on_enter(self, *args):
 		Clock.schedule_once(self.bindings,0)
@@ -139,14 +143,15 @@ class AddTaskScreen(Screen):
 		ids_selector = self.children[0].ids
 		ids_selector.back.bind(on_release=self.back)
 		ids_selector.commit.bind(on_release=self.commit)
-		
-		
+		# requisita uma mudança nos dados
+		self.change_in_data = True
+				
 	def back(self, *args):
 		'''volta para a tela principal'''
 		self.App.root.current = 'mainpagescreen'
 
 	def on_change_in_data(self, *args):
-		if change_in_data == True:
+		if self.change_in_data == True:
 			'''
 			Carrega as informações do json que foram salvas em Manager
 			atualiza as coleções de eventos e extras
