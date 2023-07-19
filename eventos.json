@@ -2,19 +2,31 @@
     "eventos": [
         "Prova",
         "Semin\u00e1rio",
-        "Projeto"
+        "Projeto",
+        ""
     ],
     "extra": [
         "Matem\u00e1tica",
         "F\u00edsica",
-        "Quarteto fantasma"
+        "Quarteto fantasma",
+        ""
     ],
     "agenda": [
-        "\t\t02/09/2023",
-        "\t\t18/07/2023",
-        "\t\t25/07/2023",
-        "\t\t31/08/2023",
-        "\t\t09/09/2023",
-        "Prova\tF\u00edsica\t09/09/2023"
+        "Semin\u00e1rio\tMatem\u00e1tica\t4/2/2023",
+        "\t\t\t\t\t\t18/7/2023",
+        "Prova\tQuarteto fantasma\t\t\t\t\t19/7/2023",
+        "Semin\u00e1rio\tQuarteto fantasma\t\t\t\t\t19/7/2023",
+        "Semin\u00e1rio\tQuarteto fantasma\t\t\t\t19/7/2023",
+        "Prova\tF\u00edsica\t\t\t19/7/2023",
+        "\t\t\t19/7/2023",
+        "\t\t\t\t\t\t25/7/2023",
+        "Semin\u00e1rio\tMatem\u00e1tica\t\t\t\t\t31/7/2023",
+        "\t\t\t\t\t\t31/8/2023",
+        "\t2/9/2023",
+        "\t9/9/2023",
+        "Prova\tF\u00edsica\t9/9/2023",
+        "Semin\u00e1rio\tQuarteto fantasma\t\t\t\t\t19/11/2023",
+        "Projeto\tQuarteto fantasma\t\t\t\t\t21/8/2031",
+        "\tF\u00edsica\t19/07/2023"
     ]
 }

@@ -10,6 +10,8 @@ from kivy.properties import ListProperty, BooleanProperty
 from assets.mainPage import MainPageLayout
 from assets.addTask import AddTaskLayout
 
+
+import numpy as np
 import json
 
 '''
@@ -19,6 +21,7 @@ tasks
 	alterar os dados devem chamar uma função do Manager do qual trate de adicionar, tirar ou alterar os dados.
 	Caso algum dado seja alterado, adicionado, ou eliminado, todas as seções que dependem desses dados devem ser notificadas
 	pelo Manager para que possam novamente copiar os dados novos.
+	-> adicionar um método que, ao mudar o arquivo json, em epecial a agenda, ordenar as tarefas por data
 '''
 
 Builder.load_string("""
@@ -43,12 +46,16 @@ class Manager(ScreenManager):
 	def __init__(self, **kwargs):
 		super(Manager,self).__init__(**kwargs)
 		self.current = 'mainpagescreen'
-		self.open()
+		self.open(sort=True)
 
-	def open(self):
+	def open(self,sort=False):
 		with open('eventos.json', encoding="utf-8") as f:
 			data = json.load(f)
-		self.agenda = data['agenda']
+
+		if sort == True:
+			self.agenda = json_data_sorter(data, 'agenda')		
+		else:
+			self.agenda = data['agenda']
 		self.extra = data['extra']
 		self.eventos = data['eventos']
 
@@ -56,7 +63,7 @@ class Manager(ScreenManager):
 		with open("eventos.json", "w") as f:
 			f.write(json.dumps(string, indent=4))
 
-		self.open()
+		self.open(sort=True)
 
 		self.notify()
 
@@ -189,6 +196,30 @@ class AddTaskScreen(Screen):
 class MyApp(App):
 	def build(self):
 		return Manager()
+
+
+def json_data_sorter(data, key, sep='/'):
+	l = list()
+	eventos = list()
+	for i,date in enumerate(data[key]):
+		d = date.split(sep)
+		eventos.append(d[0][0:-2])
+		d[0] = d[0][-2:]
+		d.append(i)
+		l.append(tuple(d))
+
+
+	b = np.array(l, dtype=[('day', int), ('month', int), ('year', int), ('id', int)])
+	b = np.sort(b, axis=0, order=['year','month','day'])
+	
+	flist = list()
+
+	for element in b:
+		event = eventos[element[-1]]
+		date = f'{element[0]}{sep}{element[1]}{sep}{element[2]}'
+		flist.append(f'{event}\t{date}')
+
+	return flist
 
 
 if __name__ == '__main__':
