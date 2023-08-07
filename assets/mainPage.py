@@ -69,7 +69,6 @@ class DataGrid(GridLayout):
 		else:
 			self.height = self.row_default_height*len(self.children)
 			self.resize = 0
-			print("!")
 
 class MainPage(App):
 	def build(self):
