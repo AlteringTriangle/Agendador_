@@ -14,7 +14,7 @@ Builder.load_string(
 <MainPageLayout>:
 	orientation:'vertical'
 	BoxLayout:
-		size_hint_y:.3
+		size_hint_y:.2
 		SwShButton:
 			text: 'Adicionar tarefa'
 			id:b1
@@ -28,17 +28,17 @@ Builder.load_string(
 		orientation:'vertical'
 		BoxLayout:
 			size_hint_y:None
-			height:40
+			height:60
 			Label:
 				text:'placeholder'
 		DataView:
-			height:self.parent.height-40
+			height:self.parent.height-60
 			width:self.parent.width
 			size_hint_y:None
     		do_scroll_y: True
 			DataGrid:
 				cols:1
-				row_default_height:40
+				row_default_height:60
 				row_force_default:True
 				size_hint_y:None
 				id:data
@@ -56,7 +56,30 @@ class SwShButton(Button):
 		self.resize_text()
 
 	def resize_text(self):
-		self.font_size = dp(14)
+		s = len(self.text)/2+1
+		c = self.width/s
+		if c > self.height/2:
+		    c = self.height/2
+		
+		self.font_size = c
+		self.text_size = self.size
+		self.padding = (0,self.height/2 - c/2)
+		self.halign = 'center'
+
+class SwShLabel(Label):
+	def on_size(self, *args):
+		self.resize_text()
+
+	def resize_text(self):
+		s = len(self.text)/2+1
+		c = self.width/s
+		if c > self.height/2:
+		    c = self.height/2
+		
+		self.font_size = c
+		self.text_size = self.size
+		self.padding = (0,self.height/2 - c/2)
+		self.halign = 'center'
 
 class DataView(ScrollView):
 	...

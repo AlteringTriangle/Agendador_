@@ -9,6 +9,7 @@ from kivy.uix.popup import Popup
 from kivy.metrics import dp
 from kivy.properties import ListProperty
 from kivy.clock import Clock
+
 from assets.numberSelect import NumberSelect
 from assets.collectionSelect import CollectionSelect
 import datetime
@@ -124,13 +125,18 @@ class EventButton(Button):
 
 	def on_collection(self, *args):
 		self.inst = CollectionSelect(collection=self.collection)
-		self.inst.bind(on_touch_up=Clock.schedule_once(self.dismiss))
+		self.inst.bind(on_touch_up=Clock.schedule_once(self.check, 30/60))
 		self.popup.content = self.inst
 
 
 	def selector(self, *args):
+		self.inst.change_in_text = False
 		self.popup.open()
 
+	def check(self, inst, *args):
+		print(self.inst.change_in_text)
+		if self.inst.change_in_text:
+			self.dismiss()
 	def dismiss(self, *args):
 		self.selected = self.inst.select
 		self.text = f'{self.selected}'
