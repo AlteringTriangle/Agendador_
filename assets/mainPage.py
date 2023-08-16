@@ -12,6 +12,7 @@ from kivy.properties import ListProperty, NumericProperty
 Builder.load_string(
 """
 <MainPageLayout>:
+	bh:60
 	orientation:'vertical'
 	BoxLayout:
 		size_hint_y:.2
@@ -28,22 +29,20 @@ Builder.load_string(
 		orientation:'vertical'
 		BoxLayout:
 			size_hint_y:None
-			height:60
+			height:root.bh
 			Label:
 				text:'placeholder'
 		DataView:
-			height:self.parent.height-60
+			height:self.parent.height-root.bh
 			width:self.parent.width
 			size_hint_y:None
     		do_scroll_y: True
 			DataGrid:
 				cols:1
-				row_default_height:60
+				row_default_height:root.bh
 				row_force_default:True
 				size_hint_y:None
 				id:data
-				
-
 """
 	)
 
@@ -71,6 +70,7 @@ class SwShLabel(Label):
 		self.resize_text()
 
 	def resize_text(self):
+
 		s = len(self.text)/2+1
 		c = self.width/s
 		if c > self.height/2:
@@ -80,7 +80,13 @@ class SwShLabel(Label):
 		self.text_size = self.size
 		self.padding = (0,self.height/2 - c/2)
 		self.halign = 'center'
-
+		'''
+		c = self.height/2
+		self.font_size = c
+		self.text_size = self.size
+		self.padding = (0,self.height/2 - c/2)
+		self.halign = 'center'
+		'''
 class DataView(ScrollView):
 	...
 
